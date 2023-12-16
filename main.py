@@ -56,6 +56,27 @@ def login():
     return render_template('login.html')
 
 
+# To specify the link to logout and authorized methods.
+@app.route("/logout")
+def logout():
+    # Deleting the username from the session.
+    session.pop('username', None)
+    return redirect(url_for('index'))
+
+
+# To specify the link to index and authorized methods.
+@app.route("/")
+def index():
+    if "username" in session:
+        return render_template('index.html', username=session['username'])
+    return redirect(url_for('login'))
+
+
+@socketio.on('message')
+def handle_message(message):
+    emit('message', {'username': session['username'], 'message': message}, broadcast=True)
+
+
 if __name__ == '__main__':
     app.secret_key = '8MLn5jxy7c3ouKrk4DCe5ALMrg29'
     socketio.run(app, debug=True)
